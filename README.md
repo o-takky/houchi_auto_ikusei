@@ -11,7 +11,7 @@
 Windows 10/11  
 Python 3  
 NoxPlayer 7  
-Amazon版/HUAWEI版 放置少女アプリ
+放置少女 for ブラウザ
 
 # 初期設定
 1. python3をインストール(未インストールの場合)  
@@ -24,18 +24,13 @@ Amazon版/HUAWEI版 放置少女アプリ
     ```
     (多分これだけだが、足りなさそうなら適宜インストール)
 
-3. Tesseract-OCRをインストール(未インストールの場合)  
-    <https://github.com/UB-Mannheim/tesseract/wiki>
-
-4. nox_adbのPathを通す  
+3. nox_adbのPathを通す  
     <https://www.google.com/search?q=nox+adb>
 
-5. main.py内の変数nox_dirの内容変更  
-    "F:\\Nox\bin"の部分を"自身のNoxのインストールフォルダ\bin"に変更  
-    これはやらなくても動くかも
+4. PaddleOCRをインストール
+   https://github.com/PaddlePaddle/PaddleOCR/blob/main/doc/doc_en/quickstart_en.md
 
-
-6. Noxの解像度を変更  
+5. Noxの解像度を変更  
     携帯電話の540p、720p、900p、1080p、1440p、2160pのどれかに変更  
     おすすめは1080pです(画像認識の精度の関係上)。    
     上記解像度で動くよう設計はしているものの、動作確認は1080pで行っているため、他の解像度ではうまく動かない可能性があります。  
@@ -77,6 +72,7 @@ A. まずはエラー内容でググってください。たいていの場合�
 使用は自己責任でお願いします。  
 
 # 更新履歴
+2024/12/31 Tesseract-OCRが認識度悪いためPaddleOCRに変更
 2023/05/01 A級育成をサポート、処理の改善  
 2022/11/06 v2.4 V1サポート終了  
 2022/10/08 UI変更に対応、OCR処理改善  
