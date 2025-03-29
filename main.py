@@ -17,8 +17,6 @@ from paddleocr import PaddleOCR
 
 ss_dir = r"%s\tmp" %(os.getcwd())
 
-ocr = tesserocr.PyTessBaseAPI(path=r"C:\\Program Files\\Tesseract-OCR\\tessdata", lang='eng', psm=7, oem=3)
-ocr.SetVariable('tessedit_char_whitelist', digits)
 # tesserocrの精度がよくないため
 ocr2 = PaddleOCR(use_angle_cls=False, lang='en', show_log=False, det=False, use_gpu=False, ir_optim=False, precision='int8', enable_mkldnn=False, det_algorithm='DB', max_text_length=5)
 
@@ -27,12 +25,11 @@ dev_addr = "0.0.0.0"
 MAX_OCR_RETRY = 5
 NUM_ARGS = 7
 NUM_ARGS_DEV = 8
-SEC_WAIT_TAP = 0
+SEC_WAIT_TAP = 0.5
 SEC_WAIT_GET_STATUS = 0
 SEC_RETRY_GET_STATUS_INTERVAL = 1
 SEC_RETRY_OCR_INTERVAL = 2.5
 SEC_WAIT_SIGINT = 2
-SEC_WAIT_TAP = 0
 IMG_RESIZE_WIDTH = 1.64
 
 CALC_THRESHOLD = 0 #育成計算値チェック
@@ -43,32 +40,32 @@ res_x=0
 res_y=0
 ##540p point value
 preStatusxy = [
-    [398, 415,        #y1, y2
-    143, 195],        #x1, x2
-    [427, 444,
-    143, 195],
-    [456, 474,
-    143, 195],
-    [486, 503,
-    143, 195]
+    [389, 405,        #y1, y2
+    133, 185],        #x1, x2
+    [420, 436,
+    133, 185],
+    [451, 467,
+    133, 185],
+    [482, 498,
+    133, 185]
 ] 
 statusxy = [
-    [398, 415,        #y1, y2
-    363, 415],        #x1, x2
-    [427, 444,
-    363, 415],
-    [456, 474,
-    363, 415],
-    [486, 503,
-    363, 415]
+    [389, 405,        #y1, y2
+    372, 424],        #x1, x2
+    [420, 436,
+    372, 424],
+    [451, 467,
+    372, 424],
+    [482, 498,
+    372, 424]
 ]
 # y1 y2 x1 x2
 trainingxy = []
 
 tapxy=[
-    [200, 700], #c級/cancel
-    [380, 680], #b級/accept
-    [200, 800]  #a級
+    [160, 713], #c級/cancel
+    [377, 713], #b級/accept
+    [160, 810]  #a級
 ]
 
 TAP_C = 0
@@ -204,7 +201,6 @@ def resolution_adjustment():
 
 def tap(n):
     subprocess.call("nox_adb -s %s shell input touchscreen tap %d %d" %(dev_addr, tapxy[n][0], tapxy[n][1]), shell=True)
-    time.sleep(SEC_WAIT_TAP)
 
 def getStatus():
     img = ImageSS_PIL()
@@ -217,14 +213,14 @@ def getStatus():
 
 def saveStatus():
     img = getStatus()
+    img.save(r"%s\fullscreen.png" %(ss_dir), quality=100)
     for i in range(4):
         img_status = img.crop(([preStatusxy[i][2], preStatusxy[i][0], preStatusxy[i][3], preStatusxy[i][1]]))
         img_status.save(r"%s\status_before_%s.png" %(ss_dir, i), quality=100)
         img_status = img.crop(([statusxy[i][2], statusxy[i][0], statusxy[i][3], statusxy[i][1]]))
         img_status.save(r"%s\status_after_%s.png" %(ss_dir, i), quality=100)
 
-    img_status = img.crop(([trainingxy[2], trainingxy[0], trainingxy[3], trainingxy[1]]))
-    img_status.save(r"%s\training.png" %(ss_dir), quality=100)
+    exit()
 
 def tapTraining(type):
     if type == 'c':
@@ -237,6 +233,7 @@ def tapTraining(type):
         print("err: 1つ目の引数が不正です: %s" %(type))
         beep()
         exit()
+    time.sleep(SEC_WAIT_TAP)
 
 def beepExit():
     print("\007")
@@ -245,7 +242,6 @@ def beepExit():
     exit()
 
 def calcStatus(training, a, b, c, d):
-    # saveStatus() # for debug
     global CALC_THRESHOLD, cancel_count
 
     img = getStatus()
@@ -258,7 +254,6 @@ def calcStatus(training, a, b, c, d):
             # 育成ボタンが押されていない可能性があるため育成ボタンを押下
             if not ocrValue.isdecimal():
                 tapTraining(training)
-                time.sleep(0.5)
                 img = getStatus()
                 statusImg = img.crop(([statusxy[i][2], statusxy[i][0], statusxy[i][3], statusxy[i][1]]))
                 print("tap training")
