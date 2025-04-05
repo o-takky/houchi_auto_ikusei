@@ -25,8 +25,7 @@ dev_addr = "0.0.0.0"
 MAX_OCR_RETRY = 5
 NUM_ARGS = 7
 NUM_ARGS_DEV = 8
-SEC_WAIT_TAP = 0.5
-SEC_WAIT_GET_STATUS = 0
+SEC_WAIT_GET_STATUS = 0.5
 SEC_RETRY_GET_STATUS_INTERVAL = 1
 SEC_RETRY_OCR_INTERVAL = 2.5
 SEC_WAIT_SIGINT = 2
@@ -233,7 +232,7 @@ def tapTraining(type):
         print("err: 1つ目の引数が不正です: %s" %(type))
         beep()
         exit()
-    time.sleep(SEC_WAIT_TAP)
+    time.sleep(SEC_WAIT_GET_STATUS)
 
 def beepExit():
     print("\007")
@@ -253,10 +252,13 @@ def calcStatus(training, a, b, c, d):
             ocrValue = ocr2.ocr(np.asarray(statusImg.convert("RGB")), cls=False, det=False)[0][0][0]
             # 育成ボタンが押されていない可能性があるため育成ボタンを押下
             if not ocrValue.isdecimal():
-                tapTraining(training)
+                preStatusImg = img.crop(([preStatusxy[i][2], preStatusxy[i][0], preStatusxy[i][3], preStatusxy[i][1]]))
+                preOcrValue = ocr2.ocr(np.asarray(preStatusImg.convert("RGB")), cls=False, det=False)[0][0][0]
+                if preOcrValue.isdecimal():
+                    tapTraining(training)
+
                 img = getStatus()
                 statusImg = img.crop(([statusxy[i][2], statusxy[i][0], statusxy[i][3], statusxy[i][1]]))
-                print("tap training")
                 continue
 
             hasError = False
